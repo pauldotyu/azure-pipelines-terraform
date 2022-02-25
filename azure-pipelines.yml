@@ -1,8 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
   - main
 
@@ -39,6 +34,7 @@ stages:
             condition: succeeded()
       - deployment: apply
         displayName: Run terraform apply
+        dependsOn: plan
         environment: "dev"
         strategy:
           runOnce:
@@ -64,6 +60,7 @@ stages:
         condition: succeeded()
   - stage: test
     displayName: Test
+    dependsOn: dev
     jobs:
       - job: plan
         displayName: Run terraform plan
@@ -92,6 +89,7 @@ stages:
         condition: succeeded()
       - deployment: apply
         displayName: Run terraform apply
+        dependsOn: plan
         environment: "test"
         strategy:
           runOnce:
@@ -118,6 +116,7 @@ stages:
     condition: succeeded()
   - stage: prod
     displayName: Prod
+    dependsOn: test
     jobs:
       - job: plan
         displayName: Run terraform plan
@@ -146,6 +145,7 @@ stages:
         condition: succeeded()
       - deployment: apply
         displayName: Run terraform apply
+        dependsOn: plan
         environment: "prod"
         strategy:
           runOnce:
