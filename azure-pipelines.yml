@@ -4,16 +4,169 @@
 # https://aka.ms/yaml
 
 trigger:
-- main
+  - main
 
 pool:
   vmImage: ubuntu-latest
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+stages:
+  - stage: dev
+    displayName: Dev
+    jobs:
+      - job: plan
+        displayName: Run terraform plan
+        steps:
+          - task: DownloadSecureFile@1
+            name: dev
+            displayName: Download backend config file
+            inputs:
+              secureFile: "dev-backend.hcl"
+          - script: |
+              terraform init -backend-config=$(dev.secureFilePath)
+              terraform plan -var-file=dev.tfvars -out=$(Build.SourcesDirectory)/dev.tfplan
+            displayName: Run terraform plan
+            failOnStderr: true
+            env:
+              ARM_CLIENT_ID: $(client-id)
+              ARM_TENANT_ID: $(tenant-id)
+              ARM_CLIENT_SECRET: $(client-secret)
+              ARM_SUBSCRIPTION_ID: $(dev-subscription-id)
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.SourcesDirectory)"
+              artifact: "dev"
+              publishLocation: "pipeline"
+            condition: succeeded()
+      - deployment: apply
+        displayName: Run terraform apply
+        environment: "dev"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "dev"
+                    targetPath: "$(Build.SourcesDirectory)"
+                  displayName: Download artifacts
+                - script: |
+                    chmod -R a+x .terraform/*
+                    terraform apply --auto-approve dev.tfplan
+                  displayName: Run terraform apply
+                  failOnStderr: true
+                  workingDirectory: $(Build.SourcesDirectory)
+                  env:
+                    ARM_CLIENT_ID: $(client-id)
+                    ARM_TENANT_ID: $(tenant-id)
+                    ARM_CLIENT_SECRET: $(client-secret)
+                    ARM_SUBSCRIPTION_ID: $(dev-subscription-id)
+        condition: succeeded()
+  - stage: test
+    displayName: Test
+    jobs:
+      - job: plan
+        displayName: Run terraform plan
+        steps:
+          - task: DownloadSecureFile@1
+            name: test
+            displayName: Download backend config file
+            inputs:
+              secureFile: "test-backend.hcl"
+          - script: |
+              terraform init -backend-config=$(test.secureFilePath)
+              terraform plan -var-file=test.tfvars -out=$(Build.SourcesDirectory)/test.tfplan
+            displayName: Run terraform plan
+            failOnStderr: true
+            env:
+              ARM_CLIENT_ID: $(client-id)
+              ARM_TENANT_ID: $(tenant-id)
+              ARM_CLIENT_SECRET: $(client-secret)
+              ARM_SUBSCRIPTION_ID: $(test-subscription-id)
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.SourcesDirectory)"
+              artifact: "test"
+              publishLocation: "pipeline"
+            condition: succeeded()
+        condition: succeeded()
+      - deployment: apply
+        displayName: Run terraform apply
+        environment: "test"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "test"
+                    targetPath: "$(Build.SourcesDirectory)"
+                  displayName: Download build artifacts
+                - script: |
+                    chmod -R a+x .terraform/*
+                    terraform apply --auto-approve test.tfplan
+                  displayName: Run terraform apply
+                  workingDirectory: $(Build.SourcesDirectory)
+                  failOnStderr: true
+                  env:
+                    ARM_CLIENT_ID: $(client-id)
+                    ARM_TENANT_ID: $(tenant-id)
+                    ARM_CLIENT_SECRET: $(client-secret)
+                    ARM_SUBSCRIPTION_ID: $(test-subscription-id)
+        condition: succeeded()
+    condition: succeeded()
+  - stage: prod
+    displayName: Prod
+    jobs:
+      - job: plan
+        displayName: Run terraform plan
+        steps:
+          - task: DownloadSecureFile@1
+            name: prod
+            displayName: Download backend config file
+            inputs:
+              secureFile: "prod-backend.hcl"
+          - script: |
+              terraform init -backend-config=$(prod.secureFilePath)
+              terraform plan -var-file=prod.tfvars -out=$(Build.SourcesDirectory)/prod.tfplan
+            displayName: Run terraform plan
+            failOnStderr: true
+            env:
+              ARM_CLIENT_ID: $(client-id)
+              ARM_TENANT_ID: $(tenant-id)
+              ARM_CLIENT_SECRET: $(client-secret)
+              ARM_SUBSCRIPTION_ID: $(prod-subscription-id)
+          - task: PublishPipelineArtifact@1
+            inputs:
+              targetPath: "$(Build.SourcesDirectory)"
+              artifact: "prod"
+              publishLocation: "pipeline"
+            condition: succeeded()
+        condition: succeeded()
+      - deployment: apply
+        displayName: Run terraform apply
+        environment: "prod"
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: DownloadPipelineArtifact@2
+                  inputs:
+                    buildType: "current"
+                    artifactName: "prod"
+                    targetPath: "$(Build.SourcesDirectory)"
+                  displayName: Download build artifacts
+                - script: |
+                    chmod -R a+x .terraform/*
+                    terraform apply --auto-approve prod.tfplan
+                  displayName: Run terraform apply
+                  workingDirectory: $(Build.SourcesDirectory)
+                  failOnStderr: true
+                  env:
+                    ARM_CLIENT_ID: $(client-id)
+                    ARM_TENANT_ID: $(tenant-id)
+                    ARM_CLIENT_SECRET: $(client-secret)
+                    ARM_SUBSCRIPTION_ID: $(prod-subscription-id)
+        condition: succeeded()
+    condition: succeeded()
