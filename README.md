@@ -437,7 +437,7 @@ The stages are repeated for **test** and **prod** and the only elements that we 
 
 ## Summary
 
-Using this approach, you can write your Terraform code (keeping to [DRY principals](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)) and have a single Azure Pipeline to deploy to various environments. You can argue that we are repeating ourselves with the code for each stage, but if it really bothers you, I suppose you can make this pipeline a single stage pipeline and pass in environment values at runtime, but I'll let you run with that 😉
+Using this approach, you can write your Terraform code (keeping to [DRY principals](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)) and have a single Azure Pipeline to deploy to various environments. You can argue that we are repeating ourselves with the code for each stage, but if it really bothers you, I suppose you can make this pipeline a single stage pipeline and pass in environment values at runtime, but I'll leave it as is for now 😉
 
 With regard to protecting environments using other methods such as branch protection or others, I'd suggest you take a look at this [doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass) to see what other pieces of approvals and checks you can employ around your environments.
 
