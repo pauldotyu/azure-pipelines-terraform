@@ -40,6 +40,10 @@ stages:
           runOnce:
             deploy:
               steps:
+                - script: |
+                      ls $(System.ArtifactsDirectory)
+                  displayName: Hello
+                  failOnStderr: true
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     buildType: "current"
