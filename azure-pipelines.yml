@@ -41,6 +41,7 @@ stages:
             deploy:
               steps:
                 - script: |
+                    ls -l
                     chmod -R a+x .terraform/*
                     terraform apply --auto-approve dev.tfplan
                   displayName: Run terraform apply
@@ -90,6 +91,7 @@ stages:
             deploy:
               steps:
                 - script: |
+                    ls -l
                     chmod -R a+x .terraform/*
                     terraform apply --auto-approve test.tfplan
                   displayName: Run terraform apply
@@ -140,6 +142,7 @@ stages:
             deploy:
               steps:
                 - script: |
+                    ls -l
                     chmod -R a+x .terraform/*
                     terraform apply --auto-approve prod.tfplan
                   displayName: Run terraform apply
