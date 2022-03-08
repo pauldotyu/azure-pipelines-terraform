@@ -56,7 +56,7 @@ Once you have the storage account created, make a note of all resource group, st
 ```SH
 cat << EOF > dev-config.azurerm.tfbackend
 resource_group_name  = "$rgname"
-storage_account_name = "$stname"
+storage_account_name = "$stacct"
 container_name       = "$container"
 key                  = "terraform.tfstate"
 EOF

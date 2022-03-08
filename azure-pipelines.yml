@@ -40,18 +40,19 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: DownloadPipelineArtifact@2
-                  inputs:
-                    buildType: "current"
-                    artifactName: "dev"
-                    targetPath: "$(Build.SourcesDirectory)"
-                  displayName: Download artifacts
+                # - task: DownloadPipelineArtifact@2
+                #   inputs:
+                #     buildType: "current"
+                #     artifactName: "dev"
+                #     targetPath: "$(Build.SourcesDirectory)"
+                #   displayName: Download artifacts
                 - script: |
-                    chmod -R a+x .terraform/*
-                    terraform apply --auto-approve dev.tfplan
+                    # chmod -R a+x .terraform/*
+                    # terraform apply --auto-approve dev.tfplan
+                    pwd
                   displayName: Run terraform apply
                   failOnStderr: true
-                  workingDirectory: $(Build.SourcesDirectory)
+                  # workingDirectory: $(Build.SourcesDirectory)
                   env:
                     ARM_CLIENT_ID: $(client-id)
                     ARM_TENANT_ID: $(tenant-id)
@@ -95,17 +96,18 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: DownloadPipelineArtifact@2
-                  inputs:
-                    buildType: "current"
-                    artifactName: "test"
-                    targetPath: "$(Build.SourcesDirectory)"
-                  displayName: Download build artifacts
+                # - task: DownloadPipelineArtifact@2
+                #   inputs:
+                #     buildType: "current"
+                #     artifactName: "test"
+                #     targetPath: "$(Build.SourcesDirectory)"
+                #   displayName: Download build artifacts
                 - script: |
-                    chmod -R a+x .terraform/*
-                    terraform apply --auto-approve test.tfplan
+                    # chmod -R a+x .terraform/*
+                    # terraform apply --auto-approve test.tfplan
+                    pwd
                   displayName: Run terraform apply
-                  workingDirectory: $(Build.SourcesDirectory)
+                  # workingDirectory: $(Build.SourcesDirectory)
                   failOnStderr: true
                   env:
                     ARM_CLIENT_ID: $(client-id)
@@ -151,17 +153,18 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: DownloadPipelineArtifact@2
-                  inputs:
-                    buildType: "current"
-                    artifactName: "prod"
-                    targetPath: "$(Build.SourcesDirectory)"
-                  displayName: Download build artifacts
+                # - task: DownloadPipelineArtifact@2
+                #   inputs:
+                #     buildType: "current"
+                #     artifactName: "prod"
+                #     targetPath: "$(Build.SourcesDirectory)"
+                #   displayName: Download build artifacts
                 - script: |
-                    chmod -R a+x .terraform/*
-                    terraform apply --auto-approve prod.tfplan
+                    # chmod -R a+x .terraform/*
+                    # terraform apply --auto-approve prod.tfplan
+                    pwd
                   displayName: Run terraform apply
-                  workingDirectory: $(Build.SourcesDirectory)
+                  # workingDirectory: $(Build.SourcesDirectory)
                   failOnStderr: true
                   env:
                     ARM_CLIENT_ID: $(client-id)
