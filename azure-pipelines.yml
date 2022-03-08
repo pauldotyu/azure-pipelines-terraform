@@ -45,7 +45,7 @@ stages:
                     terraform apply --auto-approve dev.tfplan
                   displayName: Run terraform apply
                   failOnStderr: true
-                  workingDirectory: $(System.ArtifactsDirectory)
+                  workingDirectory: /home/vsts/work/1/
                   env:
                     ARM_CLIENT_ID: $(client-id)
                     ARM_TENANT_ID: $(tenant-id)
@@ -93,7 +93,7 @@ stages:
                     chmod -R a+x .terraform/*
                     terraform apply --auto-approve test.tfplan
                   displayName: Run terraform apply
-                  workingDirectory: $(System.ArtifactsDirectory)
+                  workingDirectory: /home/vsts/work/1/
                   failOnStderr: true
                   env:
                     ARM_CLIENT_ID: $(client-id)
@@ -143,7 +143,7 @@ stages:
                     chmod -R a+x .terraform/*
                     terraform apply --auto-approve prod.tfplan
                   displayName: Run terraform apply
-                  workingDirectory: $(System.ArtifactsDirectory)
+                  workingDirectory: /home/vsts/work/1/
                   failOnStderr: true
                   env:
                     ARM_CLIENT_ID: $(client-id)
