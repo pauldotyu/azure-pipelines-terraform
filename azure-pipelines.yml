@@ -51,7 +51,7 @@ stages:
                     terraform apply --auto-approve dev.tfplan
                   displayName: Run terraform apply
                   failOnStderr: true
-                  #workingDirectory: $(Build.SourcesDirectory)
+                  workingDirectory: $(Build.SourcesDirectory)
                   env:
                     ARM_CLIENT_ID: $(client-id)
                     ARM_TENANT_ID: $(tenant-id)
