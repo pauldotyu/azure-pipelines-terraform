@@ -40,10 +40,7 @@ stages:
           runOnce:
             deploy:
               steps:
-                - script: |
-                      cat $(System.ArtifactsDirectory)/dev.tfplan
-                  displayName: Hello
-                  failOnStderr: true
+                - checkout: self 
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     buildType: "current"
