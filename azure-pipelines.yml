@@ -15,7 +15,7 @@ stages:
             name: dev
             displayName: Download backend config file
             inputs:
-              secureFile: "dev-backend.hcl"
+              secureFile: "dev-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(dev.secureFilePath)
               terraform plan -var-file=dev.tfvars -out=$(Build.SourcesDirectory)/dev.tfplan
@@ -69,7 +69,7 @@ stages:
             name: test
             displayName: Download backend config file
             inputs:
-              secureFile: "test-backend.hcl"
+              secureFile: "test-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(test.secureFilePath)
               terraform plan -var-file=test.tfvars -out=$(Build.SourcesDirectory)/test.tfplan
@@ -125,7 +125,7 @@ stages:
             name: prod
             displayName: Download backend config file
             inputs:
-              secureFile: "prod-backend.hcl"
+              secureFile: "prod-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(prod.secureFilePath)
               terraform plan -var-file=prod.tfvars -out=$(Build.SourcesDirectory)/prod.tfplan

@@ -24,32 +24,42 @@ env=dev
 # choose a region to deploy into
 location=westus
 
+# set project name
+project="terraform${env}"
+
+# optionally, if you are using ubuntu you can install petname and use that to generate a random project name
+sudo apt-get install petname
+pet=$(petname --words 2 --separator "" --complexity 0)
+project="${pet}${env}"
+
 # resource group name with environment added to the end
-rgname=rg-"terraform${env}"
+rgname=rg-"${project}"
 
 # storage account name - make sure this value is globally unique within all of azure
-stacct="saterraform${env}2022"
+stacct="sa${project}2022"
 
 # storage container name
-container="terraform${env}"
+container="${project}"
 
 # create the resource group
 az group create -n $rgname -l $location
 
 # create the azure storage account
-stname=$(az storage account create -g $rgname -n $stacct --query name -o tsv)
+az storage account create -g $rgname -n $stacct
 
 # create the blob container
-az storage container create -n $container --account-name $stname --auth-mode login
+az storage container create -n $container --account-name $stacct --auth-mode login
 ```
 
-Once you have the storage account created, make a note of all resource group, storage account, and container and create a backend config file for terraform. I put my storage account information in a file called `dev-backend.hcl`.
+Once you have the storage account created, make a note of all resource group, storage account, and container and create a backend config file for terraform. I put my storage account information in a file called `dev-config.azurerm.tfbackend`. Here is a sample of what the file should look like:
 
-```text
-resource_group_name  = "rg-terraformdev"
-storage_account_name = "saterraformdev2022"
-container_name       = "terraformdev"
+```SH
+cat << EOF > dev-config.azurerm.tfbackend
+resource_group_name  = "$rgname"
+storage_account_name = "$stname"
+container_name       = "$container"
 key                  = "terraform.tfstate"
+EOF
 ```
 
 > Create a file for each environment as we will use these in our pipelines and save these files in a temp directory somewhere on your machine. These files will not be committed to your repo.
