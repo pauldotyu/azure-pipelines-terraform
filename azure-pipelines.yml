@@ -50,6 +50,7 @@ stages:
                     # chmod -R a+x .terraform/*
                     # terraform apply --auto-approve dev.tfplan
                     pwd
+                    ls
                   displayName: Run terraform apply
                   failOnStderr: true
                   # workingDirectory: $(Build.SourcesDirectory)
@@ -106,6 +107,7 @@ stages:
                     # chmod -R a+x .terraform/*
                     # terraform apply --auto-approve test.tfplan
                     pwd
+                    ls
                   displayName: Run terraform apply
                   # workingDirectory: $(Build.SourcesDirectory)
                   failOnStderr: true
@@ -163,6 +165,7 @@ stages:
                     # chmod -R a+x .terraform/*
                     # terraform apply --auto-approve prod.tfplan
                     pwd
+                    ls
                   displayName: Run terraform apply
                   # workingDirectory: $(Build.SourcesDirectory)
                   failOnStderr: true
