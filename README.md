@@ -142,12 +142,12 @@ terraform {
 }
 ```
 
-> Notice that all we are saying above is that we want to use the `azurerm` backend provider. It is missing storage account details, but we will pass that in at runtime using the \*-backend.hcl files that we created above.
+> Notice that all we are saying above is that we want to use the `azurerm` backend provider. It is missing storage account details, but we will pass that in at runtime using the \*-config.azurerm.tfbackend files that we created above.
 
 Finally, let's run a quick smoke test to make sure the code we wrote so far is valid and will not break during the Azure Pipeline runs. Back in the Azure Cloud Shell, run the following:
 
 ```sh
-terraform init -backend-config="<YOUR_TEMP_DIR_PATH>/dev-backend.hcl"
+terraform init -backend-config="<YOUR_TEMP_DIR_PATH>/dev-config.azurerm.tfbackend"
 terraform fmt
 terraform validate
 ```
@@ -162,7 +162,7 @@ Success! The configuration is valid.
 
 ## Setting up Azure Pipeline Library and Environments
 
-In your Azure DevOps project, under Pipelines, click on the **Library** link and then the **Secure files** tab. From there, click the **+ Secure file** button and upload all your `*-backend.hcl` files
+In your Azure DevOps project, under Pipelines, click on the **Library** link and then the **Secure files** tab. From there, click the **+ Secure file** button and upload all your `*-config.azurerm.tfbackend` files
 
 ![secure-files](/images/secure-files.png)
 
@@ -231,7 +231,7 @@ stages:
             name: dev
             displayName: Download backend config file
             inputs:
-              secureFile: "dev-backend.hcl"
+              secureFile: "dev-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(dev.secureFilePath)
               terraform plan -var-file=dev.tfvars -out=$(Build.SourcesDirectory)/dev.tfplan
@@ -285,7 +285,7 @@ stages:
             name: test
             displayName: Download backend config file
             inputs:
-              secureFile: "test-backend.hcl"
+              secureFile: "test-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(test.secureFilePath)
               terraform plan -var-file=test.tfvars -out=$(Build.SourcesDirectory)/test.tfplan
@@ -341,7 +341,7 @@ stages:
             name: prod
             displayName: Download backend config file
             inputs:
-              secureFile: "prod-backend.hcl"
+              secureFile: "prod-config.azurerm.tfbackend"
           - script: |
               terraform init -backend-config=$(prod.secureFilePath)
               terraform plan -var-file=prod.tfvars -out=$(Build.SourcesDirectory)/prod.tfplan
