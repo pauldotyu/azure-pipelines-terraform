@@ -1,6 +1,6 @@
 # azure-pipeline-terraform
 
-This repo will walk you through an approach to provisioning Azure resources using Terraform code stored in a Git repo and leveraging Azure (YAML-based) Pipelines to deploy to dev, test, and prod environments.
+This repo will walk you through an approach to provisioning Azure resources using Terraform code stored in a GitHub repo and leverage Azure Pipelines (YAML-based) to deploy to **dev**, **test**, and **prod** environments (all in different subscriptions) with approval gates in front of **test** and **prod** environments.
 
 ## Prerequisites
 
@@ -12,7 +12,7 @@ Before you start, we will be using [Azure Storage as our Terraform remote backen
 
 To create your storage account, you can run the following Azure CLI command in [Azure Cloud Shell](https://shell.azure.com):
 
-> This is just one example for one enviornment, so you will need to repeat this process for each environment you intend to deploy
+> NOTE: All commands below were run from a Linux environment. If you are on a Windows machine, consider using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
 
 ```sh
 # change this to your environment subscription name or guid
@@ -62,7 +62,9 @@ key                  = "terraform.tfstate"
 EOF
 ```
 
-> Create a file for each environment as we will use these in our pipelines and save these files in a temp directory somewhere on your machine. These files will not be committed to your repo.
+Create a file for each environment as we will use these in our pipelines and save these files in a temp directory somewhere on your machine. These files will not be committed to your repo.
+
+> NOTE: The set of commands above are just for the **dev** enviornment, so you will need to repeat this process for **test** and **prod**
 
 ### Azure AD Service Principal and Role Assignment
 
@@ -92,11 +94,15 @@ Once you have a new empty repo created and cloned, you can move on to the next s
 
 > NOTE: Before moving forward, make sure you have a `.gitignore` file in your repo that is targeted toward omitting files that are related to Terraform but should not be committed to your repo. You should take my [.gitignore](./.gitignore) file as I have modified it so that we can commit some `*.tfvars` to the repo.
 
+### Terraform
+
+We'll be using Terraform locally to validate our basic configuration. It is recommended to have locally, but not required. If you need to install Terraform, see this [guide](https://learn.hashicorp.com/tutorials/terraform/install-cli) for more info.
+
 ## Write some basic Terraform code
 
 Create a new directory and drop in a `main.tf`. file.
 
-Let's keep it simple, we'll only deploy resource groups into our dev, test, and prod environments. My initial file looks like this:
+Let's keep it simple, we'll only deploy azure resource groups into our **dev**, **test**, and **prod** environments. My initial file looks like this:
 
 ```terraform
 provider "azurerm" {
@@ -132,7 +138,7 @@ name     = "rg-dev"
 location = "westus"
 ```
 
-> Create a file for each environment
+> NOTE: The dev.tfvars file above is jsut for the **dev** enviornment, so you will need to repeat this process for **test** and **prod**
 
 We're nearly done with the terraform, we just need to create a `backend.tf` file to configure the azurerm remote backend.
 
