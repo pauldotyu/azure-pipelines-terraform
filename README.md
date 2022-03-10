@@ -1,18 +1,34 @@
 # azure-pipeline-terraform
 
-This repo will walk you through an approach to provisioning Azure resources using Terraform code stored in a GitHub repo and leverage Azure Pipelines (YAML-based) to deploy to **dev**, **test**, and **prod** environments (all in different subscriptions) with approval gates in front of **test** and **prod** environments.
+This repo will walk you through an approach to provisioning Azure resources using Terraform code stored in a Git repo and leverage Azure Pipelines (YAML-based) to deploy to **dev**, **test**, and **prod** environments (all in different subscriptions) with approval gates in front of **test** and **prod** environments.
 
 ## Prerequisites
 
-### Azure
+### Azure Subscription
 
 > If you don't have Azure, go sign up for a [free account](https://azure.com/free) and come back.
 
+### Azure DevOps
+
+If you do not already have an Azure DevOps organization, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/create-organization?view=azure-devops) to create one.
+
+If you do not already have an Azure DevOps project within an organziation, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page) to create one.
+
+Create a new Azure Repo within a project. If you are not sure how to create one, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-new-repo?view=azure-devops).
+
+Once you have a new empty repo created and cloned, you can move on to the next step.
+
+> NOTE: Before moving forward, make sure you have a `.gitignore` file in your repo that is targeted toward omitting files that are related to Terraform but should not be committed to your repo. You should take my [.gitignore](./.gitignore) file as I have modified it so that we can commit some `*.tfvars` to the repo.
+
+### Azure Storage Account
+
 Before you start, we will be using [Azure Storage as our Terraform remote backend](https://www.terraform.io/language/settings/backends/azurerm), so we'll need a new Azure storage account in each subscription where our environments will be deployed to.
 
-To create your storage account, you can run the following Azure CLI command in [Azure Cloud Shell](https://shell.azure.com):
-
 > NOTE: All commands below were run from a Linux environment. If you are on a Windows machine, consider using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install).
+
+To create your storage account, you can run the following Azure CLI command:
+
+> NOTE: If you do not have Azure CLI installed, see this [doc](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) for instructions on how to install on your local machine.
 
 ```sh
 # change this to your environment subscription name or guid
@@ -53,6 +69,8 @@ az storage container create -n $container --account-name $stacct --auth-mode log
 
 Once you have the storage account created, make a note of all resource group, storage account, and container and create a backend config file for terraform. I put my storage account information in a file called `dev-config.azurerm.tfbackend`. Here is a sample of what the file should look like:
 
+> NOTE: You should create a new temporary directory to work from
+
 ```SH
 cat << EOF > dev-config.azurerm.tfbackend
 resource_group_name  = "$rgname"
@@ -81,18 +99,6 @@ When creating the service principal using Azure CLI, it will output details you 
 Next, you will need to assign the proper permissions to the service principal so that it can create resources within your subscriptions. Follow [these instructions](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current) to assign the role. You will need to grant it the **Contributor** role for each subscription you want to deploy into.
 
 > If you have [Azure Management Groups](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview) setup, you can assign the **Contributor** role at a top-level Management Group scope and the role assignment will be inherited by its child resources. See this document on [scope](https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview) for more info.
-
-### Azure DevOps
-
-If you do not already have an Azure DevOps organization, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/create-organization?view=azure-devops) to create one.
-
-If you do not already have an Azure DevOps project within an organziation, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/organizations/projects/create-project?view=azure-devops&tabs=preview-page) to create one.
-
-Create a new Azure Repo within a project. If you are not sure how to create one, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-new-repo?view=azure-devops).
-
-Once you have a new empty repo created and cloned, you can move on to the next step.
-
-> NOTE: Before moving forward, make sure you have a `.gitignore` file in your repo that is targeted toward omitting files that are related to Terraform but should not be committed to your repo. You should take my [.gitignore](./.gitignore) file as I have modified it so that we can commit some `*.tfvars` to the repo.
 
 ### Terraform
 
@@ -150,10 +156,10 @@ terraform {
 
 > Notice that all we are saying above is that we want to use the `azurerm` backend provider. It is missing storage account details, but we will pass that in at runtime using the \*-config.azurerm.tfbackend files that we created above.
 
-Finally, let's run a quick smoke test to make sure the code we wrote so far is valid and will not break during the Azure Pipeline runs. Back in the Azure Cloud Shell, run the following:
+Finally, let's run a quick smoke test to make sure the code we wrote so far is valid and will not break during the Azure Pipeline runs. If you have Terraform installed locally, you can run the following commands:
 
 ```sh
-terraform init -backend-config="<YOUR_TEMP_DIR_PATH>/dev-config.azurerm.tfbackend"
+terraform init -backend-config="dev-config.azurerm.tfbackend"
 terraform fmt
 terraform validate
 ```
