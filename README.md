@@ -163,11 +163,12 @@ terraform {
 }
 ```
 
-> Notice that all we are saying above is that we want to use the `azurerm` backend provider. It is missing storage account details, but we will pass that in at runtime using the \*-config.azurerm.tfbackend files that we created above.
+> Notice that all we are saying above is that we want to use the `azurerm` backend provider. It is missing storage account details, but we will pass that in at runtime using the `\*-config.azurerm.tfbackend` files that we created above.
 
 Finally, let's run a quick smoke test to make sure the code we wrote so far is valid and will not break during the Azure Pipeline runs. If you have Terraform installed locally, you can run the following commands:
 
 ```sh
+az account set -s 'Application 1'
 terraform init -backend-config="dev-config.azurerm.tfbackend"
 terraform fmt
 terraform validate
