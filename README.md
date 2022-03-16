@@ -71,12 +71,21 @@ Once you have the storage account created, make a note of all resource group, st
 
 > NOTE: You should create a new temporary directory to work from
 
-```SH
+```sh
 cat << EOF > $env-config.azurerm.tfbackend
 resource_group_name  = "$rgname"
 storage_account_name = "$stacct"
 container_name       = "$container"
 key                  = "terraform.tfstate"
+EOF
+```
+
+Run this command as well to create your `\*.tfvars` file for each environment. This may not make much sense now, but I will explain a bit more below.
+
+```sh
+cat << EOF > $env.tfvars
+name     = "rg-$env"
+location = $location
 EOF
 ```
 
@@ -137,14 +146,14 @@ variable "location" {
 }
 ```
 
-When we execute the `terraform plan` command, terraform will expect values for these variables, so let's create a `dev.tfvars` and set our values for our dev environment. This file will be passed into terraform at runtime.
+When we execute the `terraform plan` command, terraform will expect values for these variables, in the step above when we were building out our environments and storage accounts, we've already created `\*.tfvars`. This file will be passed into terraform at runtime.
 
 ```terraform
 name     = "rg-dev"
 location = "westus"
 ```
 
-> NOTE: The dev.tfvars file above is jsut for the **dev** enviornment, so you will need to repeat this process for **test** and **prod**
+> NOTE: You should have a `\*.tfvars` file for each environment you plan on deploying into.
 
 We're nearly done with the terraform, we just need to create a `backend.tf` file to configure the azurerm remote backend.
 
