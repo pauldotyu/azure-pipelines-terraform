@@ -16,7 +16,7 @@ If you do not already have an Azure DevOps project within an organziation, follo
 
 Create a new Azure Repo within a project. If you are not sure how to create one, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/create-new-repo?view=azure-devops).
 
-Once you have a new empty repo created and cloned, you can move on to the next step.
+Once you have a new empty repo created and cloned, you can move on to the next step. If you are not sure how to clone a repo, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/clone?view=azure-devops&tabs=git-command-line)
 
 > NOTE: Before moving forward, make sure you have a `.gitignore` file in your repo that is targeted toward omitting files that are related to Terraform but should not be committed to your repo. You should take my [.gitignore](./.gitignore) file as I have modified it so that we can commit some `*.tfvars` to the repo.
 
@@ -72,7 +72,7 @@ Once you have the storage account created, make a note of all resource group, st
 > NOTE: You should create a new temporary directory to work from
 
 ```SH
-cat << EOF > dev-config.azurerm.tfbackend
+cat << EOF > $env-config.azurerm.tfbackend
 resource_group_name  = "$rgname"
 storage_account_name = "$stacct"
 container_name       = "$container"
@@ -80,7 +80,7 @@ key                  = "terraform.tfstate"
 EOF
 ```
 
-Create a file for each environment as we will use these in our pipelines and save these files in a temp directory somewhere on your machine. These files will not be committed to your repo.
+Repeat the steps above to create a strorage account and config file for each environment as we will use these in our pipelines and save these files in a temp directory somewhere on your machine. These files will not be committed to your repo if you are using the .gitignore file found in tihs
 
 > NOTE: The set of commands above are just for the **dev** enviornment, so you will need to repeat this process for **test** and **prod**
 
