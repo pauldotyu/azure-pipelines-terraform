@@ -98,7 +98,7 @@ When creating the service principal using Azure CLI, it will output details you 
 
 Next, you will need to assign the proper permissions to the service principal so that it can create resources within your subscriptions. Follow [these instructions](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current) to assign the role. You will need to grant it the **Contributor** role for each subscription you want to deploy into.
 
-> If you have [Azure Management Groups](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview) setup, you can assign the **Contributor** role at a top-level Management Group scope and the role assignment will be inherited by its child resources. See this document on [scope](https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview) for more info.
+> HINT: If you have [Azure Management Groups](https://docs.microsoft.com/en-us/azure/governance/management-groups/overview) setup, you can assign the **Contributor** role at a top-level Management Group scope and the role assignment will be inherited by its child resources. This way, your service principal can operate against all of your subscriptions nested under the management group; otherwise, you will need to assign the **Contributor** role at each subscription individually. See this document on [scope](https://docs.microsoft.com/en-us/azure/role-based-access-control/scope-overview) for more info.
 
 ### Terraform
 
