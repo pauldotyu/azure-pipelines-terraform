@@ -315,6 +315,7 @@ stages:
           runOnce:
             deploy:
               steps:
+                - download: none
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     buildType: "current"
@@ -370,6 +371,7 @@ stages:
           runOnce:
             deploy:
               steps:
+                - download: none
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     buildType: "current"
@@ -426,6 +428,7 @@ stages:
           runOnce:
             deploy:
               steps:
+                - download: none
                 - task: DownloadPipelineArtifact@2
                   inputs:
                     buildType: "current"
