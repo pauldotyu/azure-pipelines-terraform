@@ -180,19 +180,29 @@ If you see the following message, we are good to go!
 Success! The configuration is valid.
 ```
 
-> NOTE: Don't forget to commit and push your code to the remote repo!
+Now we can commit and push code to the remote repo. If you are not sure how to do this, follow [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/commits?view=azure-devops&tabs=git-command-line#how-to-create-a-commit) to commit your code and [these instructions](https://docs.microsoft.com/en-us/azure/devops/repos/git/pushing?view=azure-devops&tabs=command-line) to push your code up to the remote repo in Azure DevOps.
+
+Here's what I ran in my repo:
+
+```sh
+git add .
+git commit -a -m 'Initial commit'
+git push
+```
 
 ## Setting up Azure Pipeline Library and Environments
 
-In your Azure DevOps project, under Pipelines, click on the **Library** link and then the **Secure files** tab. From there, click the **+ Secure file** button and upload all your `*-config.azurerm.tfbackend` files
+In your Azure DevOps project, under **Pipelines**, click on the **Library** link and then the **Secure files** tab. From there, click the **+ Secure file** button and upload all your `*-config.azurerm.tfbackend` files
 
 ![secure-files](/images/secure-files.png)
 
-Next, click on the **Environments** button and click on the **New environment** button and create each environment. In the modal form that pops up, simply give it a name, optionally enter a description and select **None** for **Resource** then click **Create**.
+Next, click on the **Environments** button and click on the **Create environment** button and create a new environment. In the modal form that pops up, simply give it a name, optionally enter a description and select **None** for **Resource** then click **Create**.
 
 ![environments](/images/environments.png)
 
-Now, click into the **test** environment and click the _3 dots_ next to the **Add resource** button to bring up a menu. Click on **Approvals and checks**
+Repeat the process for the other environments that you plan to deploy into.
+
+Now, click into your **test** environment and click the _3 dots_ to the right of the blue **Add resource** button to bring up a menu. Click on **Approvals and checks**
 
 ![approvals-and-checks](/images/approvals-and-checks.png)
 
@@ -204,11 +214,11 @@ Your environment should look like this:
 
 ![approvals](/images/approvals.png)
 
-> NOTE: Repeat this process for the **prod** environment. We will not need to add an approval check for **dev** environment as we will let devs deploy there without any check in place.
+> NOTE: Repeat this process for the **prod** environment. We will not need to add an approval check for **dev** environment as we will let deployments go through without any checks in place.
 
 ### Write our Azure Pipeline
 
-We are ready to write a YAML pipeline. Click on Pipelines then on the **New pipeline** button.
+We are ready to write a YAML pipeline. In the left-hand navigation, click on **Pipelines** then on the **Create pipeline** button.
 
 Click on **Azure Repos Git** and make sure you are using the **YAML** version, then pick your Git repo
 
@@ -232,6 +242,36 @@ Using the editor create the following secrets:
 > NOTE: We are using [pipeline variables](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=classic%2Cbatch#set-variables-in-pipeline); however, the best practice for this would be to [use Azure Key Vault secrets](https://docs.microsoft.com/en-us/azure/devops/pipelines/release/key-vault-in-own-project?view=azure-devops&tabs=portal).
 
 We will not drop in our pipeline code. Don't worry about understanding the logic yet, let's watch it run first and I'll then explain later.
+
+If you prefer to work within a terminal, just click "Save and run" to generate a pipeline id and create pipeline variables using the [Azure DevOps CLI](https://docs.microsoft.com/en-us/azure/devops/cli/?view=azure-devops).
+
+```sh
+az extension add --name azure-devops
+
+org=<YOUR_ORGANIZATION_NAME>
+proj=<YOUR_PROJECT_NAME>
+pid=<YOUR_PIPELINE_ID> # this will be found in the querystring for your pipeline definition - the parameter is named definitionId
+clientId=<YOUR_CLIENT_ID>
+clientSecret=<YOUR_CLIENT_SECRET>
+tenantId=<YOUR_TENANT_ID>
+devSubId=<YOUR_DEV_SUBSCRIPTION_ID>
+testSubId=<YOUR_TEST_SUBSCRIPTION_ID>
+prodSubId=<YOUR_PROD_SUBSCRIPTION_ID>
+
+az devops configure --defaults organization=https://dev.azure.com/$org
+
+az pipelines variable create --name client-id --allow-override true --pipeline-id $pid --project $proj --secret false --value $clientId
+
+az pipelines variable create --name client-secret --allow-override true --pipeline-id $pid --project $proj --secret true --value $clientSecret
+
+az pipelines variable create --name tenant-id --allow-override true --pipeline-id $pid --project $proj --secret false --value $tenantId
+
+az pipelines variable create --name dev-subscription-id --allow-override true --pipeline-id $pid --project $proj --secret false --value $devSubId
+
+az pipelines variable create --name test-subscription-id --allow-override true --pipeline-id $pid --project $proj --secret false --value $testSubId
+
+az pipelines variable create --name prod-subscription-id --allow-override true --pipeline-id $pid --project $proj --secret false --value $prodSubId
+```
 
 Copy the following code and overwrite what is currently in your code editor:
 
