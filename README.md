@@ -85,7 +85,7 @@ Run this command as well to create your `\*.tfvars` file for each environment. T
 ```sh
 cat << EOF > $env.tfvars
 name     = "rg-$env"
-location = $location
+location = "$location"
 EOF
 ```
 
@@ -147,11 +147,6 @@ variable "location" {
 ```
 
 When we execute the `terraform plan` command, terraform will expect values for these variables, in the step above when we were building out our environments and storage accounts, we've already created `\*.tfvars`. This file will be passed into terraform at runtime.
-
-```terraform
-name     = "rg-dev"
-location = "westus"
-```
 
 > NOTE: You should have a `\*.tfvars` file for each environment you plan on deploying into.
 
@@ -274,6 +269,8 @@ az pipelines variable create --name prod-subscription-id --allow-override true -
 ```
 
 Copy the following code and overwrite what is currently in your code editor:
+
+> NOTE: Don't worry about understanding it all now, we'll go through it bit by bit.
 
 ```yaml
 trigger:
@@ -509,7 +506,7 @@ The stages are repeated for **test** and **prod** and the only elements that we 
 
 ## Summary
 
-Using this approach, you can write your Terraform code (keeping to [DRY principals](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)) and have a single Azure Pipeline to deploy to various environments. You can argue that we are repeating ourselves with the code for each stage, but if it really bothers you, I suppose you can make this pipeline a single stage pipeline and pass in environment values at runtime, but I'll leave it as is for now 😉
+Using this approach, you can write your Terraform code (keeping to [DRY principals](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself)) and have a single Azure Pipeline to deploy to various environments. You can argue that we are repeating ourselves with a section of pipeline code for each stage in our `azure-pipelines.yaml` file, but if it really bothers you, I suppose you can make this pipeline a single stage pipeline and pass in environment values at runtime, but I'll leave it as is for now 😉
 
 With regard to protecting environments using other methods such as branch protection or others, I'd suggest you take a look at this [doc](https://docs.microsoft.com/en-us/azure/devops/pipelines/process/approvals?view=azure-devops&tabs=check-pass) to see what other pieces of approvals and checks you can employ around your environments.
 
